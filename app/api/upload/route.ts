@@ -4,14 +4,12 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 const s3 = new S3Client({ region: "us-west-2" });
+const bucket = process.env.BucketArn!.split(":::")[1];
 
 export async function GET() {
   try {
     const resp = await s3.send(
-      new GetObjectCommand({
-        Bucket: "binding-gameday-blinsowa",
-        Key: "hello.txt",
-      })
+      new GetObjectCommand({ Bucket: bucket, Key: "hello.txt" })
     );
     const content = await resp.Body?.transformToString();
     return NextResponse.json({ content });
