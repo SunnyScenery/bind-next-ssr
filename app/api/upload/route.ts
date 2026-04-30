@@ -1,6 +1,8 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const s3 = new S3Client({
   region: process.env.AWS_REGION!,
   credentials: {
