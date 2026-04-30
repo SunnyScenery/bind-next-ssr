@@ -9,13 +9,23 @@ export default function Home() {
     setStatus("Uploading…");
     try {
       const res = await fetch("/api/upload", { method: "POST" });
+      if (!res.ok) {
+        const text = await res.text();
+        setStatus(`API error ${res.status}: ${text}`);
+        return;
+      }
       const { url, key } = await res.json();
 
-      await fetch(url, {
+      const putRes = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": "text/plain" },
         body: "hello world",
       });
+      if (!putRes.ok) {
+        const text = await putRes.text();
+        setStatus(`S3 error ${putRes.status}: ${text}`);
+        return;
+      }
 
       setStatus(`Uploaded: ${key}`);
     } catch (e) {
@@ -32,7 +42,7 @@ export default function Home() {
       >
         Upload to S3
       </button>
-      {status && <p className="text-sm text-gray-600">{status}</p>}
+      {status && <p className="text-sm text-gray-600 max-w-lg break-all">{status}</p>}
     </main>
   );
 }
