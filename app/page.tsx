@@ -3,46 +3,34 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [status, setStatus] = useState("");
+  const [content, setContent] = useState("");
 
-  async function handleUpload() {
-    setStatus("Uploading…");
+  async function handleFetch() {
+    setContent("Loading…");
     try {
-      const res = await fetch("/api/upload", { method: "POST" });
+      const res = await fetch("/api/upload");
       if (!res.ok) {
         const text = await res.text();
-        setStatus(`API error ${res.status}: ${text}`);
+        setContent(`Error ${res.status}: ${text}`);
         return;
       }
-      const { url, key } = await res.json();
-
-      const putRes = await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "text/plain" },
-        body: "hello world",
-      });
-      if (!putRes.ok) {
-        const text = await putRes.text();
-        setStatus(`S3 error ${putRes.status}: ${text}`);
-        return;
-      }
-
-      setStatus(`Uploaded: ${key}`);
+      const data = await res.json();
+      setContent(data.content);
     } catch (e) {
-      setStatus(`Error: ${(e as Error).message}`);
+      setContent(`Error: ${(e as Error).message}`);
     }
   }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen gap-4">
-      <h1 className="text-2xl font-bold">S3 Uploader</h1>
+      <h1 className="text-2xl font-bold">S3 Reader</h1>
       <button
-        onClick={handleUpload}
+        onClick={handleFetch}
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
-        Upload to S3
+        Read from S3
       </button>
-      {status && <p className="text-sm text-gray-600 max-w-lg break-all">{status}</p>}
+      {content && <p className="text-lg">{content}</p>}
     </main>
   );
 }

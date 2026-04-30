@@ -1,5 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
 
 const s3 = new S3Client({
@@ -10,18 +9,14 @@ const s3 = new S3Client({
   },
 });
 
-export async function POST() {
-  const key = `uploads/${Date.now()}-hello.txt`;
-
-  const url = await getSignedUrl(
-    s3,
-    new PutObjectCommand({
+export async function GET() {
+  const resp = await s3.send(
+    new GetObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME!,
-      Key: key,
-      ContentType: "text/plain",
-    }),
-    { expiresIn: 60 }
+      Key: "hello.txt",
+    })
   );
 
-  return NextResponse.json({ url, key });
+  const content = await resp.Body?.transformToString();
+  return NextResponse.json({ content });
 }
