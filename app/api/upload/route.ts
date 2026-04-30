@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
+  region: "us-west-2",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
@@ -14,7 +14,7 @@ const s3 = new S3Client({
 export async function GET() {
   const resp = await s3.send(
     new GetObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME!,
+      Bucket: "binding-gameday-blinsowa",
       Key: "hello.txt",
     })
   );
