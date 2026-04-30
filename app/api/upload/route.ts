@@ -3,13 +3,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const s3 = new S3Client({
-  region: "us-west-2",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+const s3 = new S3Client({ region: "us-west-2" });
 
 export async function GET() {
   const resp = await s3.send(
