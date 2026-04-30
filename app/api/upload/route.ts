@@ -7,7 +7,15 @@ const s3 = new S3Client({ region: "us-west-2" });
 
 export async function GET() {
   try {
-    const bucket = process.env.BucketArn!.split(":::")[1];
+    console.log("BucketArn env:", process.env.BucketArn);
+    console.log("Env keys with bucket:", Object.keys(process.env).filter(k => k.toLowerCase().includes("bucket")));
+
+    const bucketArn = process.env.BucketArn;
+    if (!bucketArn) {
+      return NextResponse.json({ error: "BucketArn env var not set", availableBucketKeys: Object.keys(process.env).filter(k => k.toLowerCase().includes("bucket")) }, { status: 500 });
+    }
+
+    const bucket = bucketArn.split(":::")[1];
     const resp = await s3.send(
       new GetObjectCommand({ Bucket: bucket, Key: "hello.txt" })
     );

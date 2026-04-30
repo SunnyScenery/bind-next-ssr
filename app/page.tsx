@@ -8,7 +8,7 @@ export default function Home() {
   async function handleFetch() {
     setContent("Loading…");
     try {
-      const res = await fetch("/api/upload");
+      const res = await fetch(`/api/upload?t=${Date.now()}`);
       if (!res.ok) {
         const text = await res.text();
         setContent(`Error ${res.status}: ${text}`);
