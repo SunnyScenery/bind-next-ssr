@@ -1,27 +1,37 @@
-"use client";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
-import { useState } from "react";
-import { readFromS3 } from "./actions";
+export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const [result, setResult] = useState("");
+export default async function Home({ searchParams }: { searchParams: { action?: string } }) {
+  let content = "";
+  let error = "";
 
-  async function handleClick() {
-    setResult("Loading…");
-    const res = await readFromS3();
-    setResult(res.content ?? `Error: ${res.error}`);
+  if (searchParams.action === "read") {
+    try {
+      const bucket = process.env.BucketArn?.split(":::")[1];
+      if (!bucket) throw new Error("BucketArn env var not set");
+
+      const s3 = new S3Client({ region: "us-west-2" });
+      const resp = await s3.send(
+        new GetObjectCommand({ Bucket: bucket, Key: "hello.txt" })
+      );
+      content = (await resp.Body?.transformToString()) ?? "";
+    } catch (e) {
+      error = (e as Error).message;
+    }
   }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen gap-4">
       <h1 className="text-2xl font-bold">S3 Reader</h1>
-      <button
-        onClick={handleClick}
+      <a
+        href="/?action=read"
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         Read from S3
-      </button>
-      {result && <p className="text-lg">{result}</p>}
+      </a>
+      {content && <p className="text-lg text-green-600">Content: {content}</p>}
+      {error && <p className="text-lg text-red-600">Error: {error}</p>}
     </main>
   );
 }
